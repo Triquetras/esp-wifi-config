@@ -2,31 +2,104 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WiFi Configration</title>
 <style type="text/css">
-html, input {font-size: 40px;}
-h1 { font-size: 150%; text-align: center; }
-body .container {width: 15em; margin: 0 auto; padding: 1em;}
-label {display: block;}
-input[type=text], input[type=password] {width: 100%; box-sizing: border-box;}
-input[type=submit] {
-    width: 100%;
-    border: 1px solid black;
-    text-decoration: none;
-    padding: 0.25em 5em;
-    color: white;
-    background-color: #4caf50;
-    cursor: pointer;
-    -webkit-appearance: none;
-    -webkit-border-radius: 0;
+
+h1 {
+  text-align: center;
+  font-size: 1.4rem
 }
-input[type=submit]#refresh {background-color: #44bbe3;}
-input[type=submit]#join {background-color: #4caf50;}
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #282828;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  font-size: 18px;
+}
+body .container
+{
+  background-color: #2f2f2f;
+  margin: 10px;
+  border-radius: 10px;
+  width: 100%;
+  text-align: center;
+  width: 50%;
+  max-width: 300px;
+  padding: 10px;
+  height: 100%;
+  max-height: 80%;
+  display: block;
+}
+.btns_container {
+  display: flex;
+  justify-content: space-around;
+}
+label {
+  display: block;
+  font-size: 0.9rem;
+  text-align: left;
+}
+input {
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif;
+  border-radius: 5px;
+  width: 160px;
+  height: 40px;
+  text-align: center;
+  text-decoration: none;
+  color: #FFF;
+  -webkit-appearance:none; /* remove the strong OSX influence from Webkit */
+}
+input:hover {
+  cursor: pointer
+}
+input[type=text], input[type=password] {
+  background-color: #282828;
+  border: 0;
+  width: 100%;
+  height: 30px
+}
+input[type=submit] {
+  background-color: #2f2f2f;
+  border: 1px solid #27AFE9;
+}
+input[type=submit]#refresh {
+  border-color: #27AFE9;
+}
+input[type=submit]#join {
+  background-color: #27AFE9;
+}
 input[type=submit][disabled] {
     color: #aaaaaa;
-    background-color: #eeeeee !important;
+    background-color: #2f2f2f !important;
 }
-.networks {list-style: none; margin: 1em 0; padding: 0;}
+a {
+  color: #FFF;
+  text-decoration: none;
+  width: 130px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #27AFE9;
+  font-size: 0.8rem
+}
+
+.networks {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0;
+  overflow-y: auto;
+  height: 8rem;
+  /* min-height: 100px */
+}
 .networks li {
     cursor: pointer;
     padding: 0.25em;
@@ -37,13 +110,35 @@ input[type=submit][disabled] {
     position: relative;
     padding-left: 1.1em;
 }
-.networks li.secure::before {content: "🔒"; position: absolute; left: 0;}
-.networks li.selected {font-weight: bold; background-color: #ddd}
-.networks li:hover {background-color: #eee;}
+.networks li.secure::before {color: #282828; content: url('data:image/svg+xml; utf8, <svg width="19" height="20" viewBox="0 0 11 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.82143 5.25H9.23214V3.5625C9.23214 1.59844 7.55759 0 5.5 0C3.44241 0 1.76786 1.59844 1.76786 3.5625V5.25H1.17857C0.527902 5.25 0 5.75391 0 6.375V10.875C0 11.4961 0.527902 12 1.17857 12H9.82143C10.4721 12 11 11.4961 11 10.875V6.375C11 5.75391 10.4721 5.25 9.82143 5.25ZM7.26786 5.25H3.73214V3.5625C3.73214 2.63203 4.52522 1.875 5.5 1.875C6.47478 1.875 7.26786 2.63203 7.26786 3.5625V5.25Z" fill="white"/></svg>'); position: absolute; left: 0;}
+.networks li.selected {font-weight: bold; background-color: #282828}
+.networks li:hover {background-color: rgba(40, 40, 40, 0.4);}
 .networks li.other {border-top: 2px solid #aaa; text-align: center;}
 .nonetworks {text-align: center; margin: 1em 0;}
 .field {margin-bottom: 0.5em;}
-.field.required label::before {content: "*"; color: red;}
+.field.required label::before {content: "*"; color: #CB3939;}
+
+
+/* scroll */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #282828;
+}
+::-webkit-scrollbar-thumb {
+  background: #555;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+@media (max-width: 450px) {
+  body .container {
+    width: 90%;
+    max-width: 90%;
+  }
+}
 </style>
 </head>
 <body>
@@ -52,10 +147,8 @@ input[type=submit][disabled] {
         {{ custom_html|safe }}
         <!-- part HTML_SETTINGS_BODY -->
         <h1>Join WiFi network</h1>
-        <form action="/settings" method="get">
-            <input type="submit" id="refresh" value="⟲ Refresh" />
-        </form>
-        <form action="/settings" method="post">
+
+        <form id="joinForm" action="/settings" method="post">
             <div class="nonetworks" style="display: none;">
                 No networks found
             </div>
@@ -66,20 +159,21 @@ input[type=submit][disabled] {
                 <li class="{{ network.secure | ternary('secure', 'unsecure') }}">{{ network.ssid }}</li>
                 {% endfor %}
                 <!-- part HTML_SETTINGS_FOOTER -->
-                <li class="other">Other</li>
             </ul>
 
-            <div class="field required ssid" style="display: none;">
+            <div class="field required ssid">
                 <label for="ssid">SSID:</label>
                 <input type="text" id="ssid" name="ssid" />
             </div>
 
-            <div class="field required password" style="display: none;">
+            <div class="field required password">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" />
             </div>
 
-            <input type="submit" id="join" value="Join" disabled />
+            <div class="btns_container">
+              <a id="wifiBtnSubmit" onclick="wifiBtnSubmit.style.background = '#27AFE9';joinForm.submit()">Join</a>
+            </div>
         </form>
     </div>
     <script>
@@ -93,7 +187,6 @@ password_field = document.getElementById('password');
 join_button = document.getElementById('join');
 
 function enable(e) { e.disabled = ''; }
-function disable(e) { e.disabled = 'disabled'; }
 function show(e) { e.style.display = 'block'; }
 function hide(e) { e.style.display = 'none'; }
 
@@ -112,10 +205,6 @@ for (i=0; i<nets.length; i++) {
         event.preventDefault();
         selectNetwork(this);
         ssid_field.value = this.innerText;
-        hide(ssid_block);
-        hide(password_block);
-        disable(password_field);
-        password_field.value = '';
         enable(join_button);
     }
 }
@@ -126,29 +215,7 @@ for (i=0; i<nets.length; i++) {
         event.preventDefault();
         selectNetwork(this);
         ssid_field.value = this.innerText;
-        hide(ssid_block);
-        enable(password_field);
-        show(password_block);
-        disable(join_button);
         password_block.classList.add('required');
-    }
-}
-
-nets = document.querySelectorAll('ul.networks li.other');
-for (i=0; i<nets.length; i++) {
-    nets[i].onclick = function(event) {
-        event.preventDefault();
-        if (this.classList.contains('selected'))
-            return;
-
-        selectNetwork(this);
-        ssid_field.value = "";
-        show(ssid_block);
-        show(password_block);
-        enable(ssid_field);
-        enable(password_field);
-        disable(join_button);
-        password_block.classList.remove('required');
     }
 }
 
@@ -158,21 +225,6 @@ if (document.querySelectorAll('ul.networks li').length == 1) {
     show(ssid_block);
     show(password_block);
     password_block.classList.remove('required');
-}
-
-let s = ssid_field;
-let p = password_field;
-s.onchange = s.onkeydown = s.onpaste = s.oninput =
-p.onchange = p.onkeydown = p.onpaste = p.oninput = function(event) {
-    var f = enable;
-    if (ssid_block.classList.contains('required') && ssid_field.value == '') {
-        f = disable;
-    }
-    if (password_block.classList.contains('required') && password_field.value == '') {
-        f = disable;
-    }
-
-    f(join_button);
 }
     </script>
 </body>

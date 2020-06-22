@@ -736,8 +736,7 @@ static void wifi_config_monitor_callback(void *arg) {
 
 
 static int wifi_config_has_configuration() {
-    char *wifi_ssid = NULL;
-    sysparam_get_string("wifi_ssid", &wifi_ssid);
+    char *wifi_ssid = wifi_config_get_ssid();
 
     if (!wifi_ssid) {
         return 0;
@@ -750,17 +749,14 @@ static int wifi_config_has_configuration() {
 
 
 static int wifi_config_station_connect() {
-    char *wifi_ssid = NULL;
-    char *wifi_password = NULL;
-    sysparam_get_string("wifi_ssid", &wifi_ssid);
-    sysparam_get_string("wifi_password", &wifi_password);
+    char *wifi_ssid = wifi_config_get_ssid();
 
     if (!wifi_ssid) {
         ERROR("No configuration found");
-        if (wifi_password)
-            free(wifi_password);
         return -1;
     }
+
+    char *wifi_password = wifi_config_get_password();
 
     INFO("Connecting to %s", wifi_ssid);
 
@@ -856,24 +852,94 @@ void wifi_config_init2(const char *ssid_prefix, const char *password,
 }
 
 
-void wifi_config_reset() {
-    sysparam_set_string("wifi_ssid", "");
-    sysparam_set_string("wifi_password", "");
+// void wifi_config_reset() {
+//     sysparam_set_string("wifi_ssid", "");
+//     sysparam_set_string("wifi_password", "");
+// }
+
+
+// void wifi_config_get(char **ssid, char **password) {
+//     if (ssid)
+//         sysparam_get_string("wifi_ssid", ssid);
+
+//     if (password)
+//         sysparam_get_string("wifi_password", password);
+// }
+
+
+// void wifi_config_set(const char *ssid, const char *password) {
+//     sysparam_set_string("wifi_ssid", ssid);
+//     sysparam_set_string("wifi_password", password);
+// }
+
+
+bool wifi_config_reset()
+{
+    struct sdk_station_config sta_config;
+
+    memset(&sta_config, 0, sizeof(sta_config));
+    bool status = sdk_wifi_station_set_config(&sta_config);
+
+    return status;
 }
 
+char* wifi_config_get_ssid()
+{
+    char *buffer = NULL;
 
-void wifi_config_get(char **ssid, char **password) {
-    if (ssid)
-        sysparam_get_string("wifi_ssid", ssid);
+    struct sdk_station_config sta_config;
 
-    if (password)
-        sysparam_get_string("wifi_password", password);
+    bool status = sdk_wifi_station_get_config(&sta_config);
+
+    if (status && strlen(sta_config.ssid) > 0)
+    {
+        buffer = malloc(strlen(sta_config.ssid) + 1);
+
+        buffer[strlen(sta_config.ssid)] = 0;
+
+        strcpy(buffer, (char*)sta_config.ssid);
+    }
+
+    return buffer;
 }
 
+char* wifi_config_get_password()
+{
+    char *buffer = NULL;
 
-void wifi_config_set(const char *ssid, const char *password) {
-    sysparam_set_string("wifi_ssid", ssid);
-    sysparam_set_string("wifi_password", password);
+    struct sdk_station_config sta_config;
+
+    bool status = sdk_wifi_station_get_config(&sta_config);
+
+    if (status && strlen(sta_config.password) > 0)
+    {
+        buffer = malloc(strlen(sta_config.password) + 1);
+
+        buffer[strlen(sta_config.password)] = 0;
+
+        strcpy(buffer, (char*)sta_config.password);
+    }
+
+    return buffer;
+}
+
+bool wifi_config_set(const char *ssid, const char *password)
+{
+    struct sdk_station_config sta_config;
+    sdk_wifi_station_get_config(&sta_config);
+
+    if (ssid != NULL)
+    {
+        printf("wifi_config_set ssid %s\n", ssid);
+        strcpy(sta_config.ssid, ssid);
+    }
+    if (password != NULL)
+    {
+        strcpy(sta_config.password, password);
+    }
+    bool status = sdk_wifi_station_set_config(&sta_config);
+
+    return status;
 }
 
 void wifi_config_set_custom_html(char *html) {
