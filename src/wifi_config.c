@@ -276,12 +276,15 @@ static void wifi_config_server_on_settings_update(client_t *client) {
     DEBUG("Setting wifi_ssid param = %s", ssid_param->value);
     DEBUG("Setting wifi_password param = %s", password_param->value);
 
-    sysparam_set_string("wifi_ssid", ssid_param->value);
-    if (password_param) {
-        sysparam_set_string("wifi_password", password_param->value);
-    } else {
-        sysparam_set_string("wifi_password", "");
-    }
+    wifi_config_set(ssid_param->value, password_param->value);
+
+    // sysparam_set_string("wifi_ssid", ssid_param->value);
+    // if (password_param) {
+    //     sysparam_set_string("wifi_password", password_param->value);
+    // } else {
+    //     sysparam_set_string("wifi_password", "");
+    // }
+
     form_params_free(form);
 
     vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -637,15 +640,12 @@ static void wifi_config_softap_start() {
 
     sdk_wifi_set_opmode(STATIONAP_MODE);
 
-    uint8_t macaddr[6];
-    sdk_wifi_get_macaddr(SOFTAP_IF, macaddr);
+    // uint8_t macaddr[6];
+    // sdk_wifi_get_macaddr(SOFTAP_IF, macaddr);
 
     struct sdk_softap_config softap_config;
     sdk_wifi_softap_get_config(&softap_config);
-    softap_config.ssid_len = snprintf(
-        (char *)softap_config.ssid, sizeof(softap_config.ssid),
-        "%s-%02X%02X%02X", context->ssid_prefix, macaddr[3], macaddr[4], macaddr[5]
-    );
+    softap_config.ssid_len = snprintf((char *)softap_config.ssid, sizeof(softap_config.ssid), "%s", context->ssid_prefix);
     softap_config.ssid_hidden = 0;
     if (context->password) {
         softap_config.authmode = AUTH_WPA_WPA2_PSK;
@@ -749,32 +749,32 @@ static int wifi_config_has_configuration() {
 
 
 static int wifi_config_station_connect() {
-    char *wifi_ssid = wifi_config_get_ssid();
+    // char *wifi_ssid = wifi_config_get_ssid();
 
-    if (!wifi_ssid) {
-        ERROR("No configuration found");
-        return -1;
-    }
+    // if (!wifi_ssid) {
+    //     ERROR("No configuration found");
+    //     return -1;
+    // }
 
-    char *wifi_password = wifi_config_get_password();
+    // char *wifi_password = wifi_config_get_password();
 
-    INFO("Connecting to %s", wifi_ssid);
+    // INFO("Connecting to %s", wifi_ssid);
 
-    struct sdk_station_config sta_config;
-    memset(&sta_config, 0, sizeof(sta_config));
-    strncpy((char *)sta_config.ssid, wifi_ssid, sizeof(sta_config.ssid));
-    sta_config.ssid[sizeof(sta_config.ssid)-1] = 0;
-    if (wifi_password)
-        strncpy((char *)sta_config.password, wifi_password, sizeof(sta_config.password));
+    // struct sdk_station_config sta_config;
+    // memset(&sta_config, 0, sizeof(sta_config));
+    // strncpy((char *)sta_config.ssid, wifi_ssid, sizeof(sta_config.ssid));
+    // sta_config.ssid[sizeof(sta_config.ssid)-1] = 0;
+    // if (wifi_password)
+    //     strncpy((char *)sta_config.password, wifi_password, sizeof(sta_config.password));
 
-    sdk_wifi_station_set_config(&sta_config);
+    // sdk_wifi_station_set_config(&sta_config);
 
     sdk_wifi_station_connect();
     sdk_wifi_station_set_auto_connect(true);
 
-    free(wifi_ssid);
-    if (wifi_password)
-        free(wifi_password);
+    // free(wifi_ssid);
+    // if (wifi_password)
+    //     free(wifi_password);
 
     return 0;
 }
@@ -819,7 +819,7 @@ void wifi_config_init(const char *ssid_prefix, const char *password, void (*on_w
     context = malloc(sizeof(wifi_config_context_t));
     memset(context, 0, sizeof(*context));
 
-    context->ssid_prefix = strndup(ssid_prefix, 33-7);
+    context->ssid_prefix = strdup(ssid_prefix);
     if (password)
         context->password = strdup(password);
 
@@ -842,7 +842,7 @@ void wifi_config_init2(const char *ssid_prefix, const char *password,
     context = malloc(sizeof(wifi_config_context_t));
     memset(context, 0, sizeof(*context));
 
-    context->ssid_prefix = strndup(ssid_prefix, 33-7);
+    context->ssid_prefix = strdup(ssid_prefix);
     if (password)
         context->password = strdup(password);
 
